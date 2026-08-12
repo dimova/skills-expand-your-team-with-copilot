@@ -568,6 +568,9 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        <button class="share-button" data-activity="${name}" aria-label="Share this activity">
+          📤 Share
+        </button>
       </div>
     `;
 
@@ -586,6 +589,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handler for share button
+    const shareButton = activityCard.querySelector(".share-button");
+    shareButton.addEventListener("click", () => {
+      shareActivity(name, details);
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -640,6 +649,30 @@ document.addEventListener("DOMContentLoaded", () => {
       fetchActivities();
     });
   });
+
+  // Share an activity with friends
+  function shareActivity(name, details) {
+    const shareText = `Check out ${name} at Mergington High School! ${details.description} Schedule: ${formatSchedule(details)}`;
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      navigator.share({
+        title: name,
+        text: shareText,
+        url: shareUrl,
+      }).catch(() => {
+        // User cancelled or share failed — do nothing
+      });
+    } else {
+      // Fallback: copy a shareable message to clipboard
+      const fullMessage = `${shareText}\n${shareUrl}`;
+      navigator.clipboard.writeText(fullMessage).then(() => {
+        showMessage("Link copied to clipboard! Share it with your friends.", "success");
+      }).catch(() => {
+        showMessage("Could not copy to clipboard. Please copy the page URL manually.", "error");
+      });
+    }
+  }
 
   // Open registration modal
   function openRegistrationModal(activityName) {
