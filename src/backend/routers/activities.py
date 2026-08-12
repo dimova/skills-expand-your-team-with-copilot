@@ -41,12 +41,20 @@ def get_activities(
     if end_time:
         query["schedule_details.end_time"] = {"$lte": end_time}
     
+    VALID_DIFFICULTIES = {"Beginner", "Intermediate", "Advanced", "all"}
     if difficulty:
-        if difficulty == "all":
+        difficulty = difficulty.strip()
+        normalized = difficulty.capitalize() if difficulty.lower() != "all" else "all"
+        if normalized not in VALID_DIFFICULTIES:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid difficulty '{difficulty}'. Must be one of: Beginner, Intermediate, Advanced, all"
+            )
+        if normalized == "all":
             # "All" means activities with no difficulty set
             query["difficulty"] = {"$exists": False}
         else:
-            query["difficulty"] = difficulty
+            query["difficulty"] = normalized
     
     # Query the database
     activities = {}
