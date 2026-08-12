@@ -1,4 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Dark mode toggle
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+  const darkModeIcon = document.getElementById("dark-mode-icon");
+
+  function applyDarkMode(enabled) {
+    document.body.classList.toggle("dark-mode", enabled);
+    darkModeIcon.textContent = enabled ? "☀️" : "🌙";
+  }
+
+  const savedDarkMode = localStorage.getItem("darkMode") === "true";
+  applyDarkMode(savedDarkMode);
+
+  darkModeToggle.addEventListener("click", () => {
+    const isDark = document.body.classList.contains("dark-mode");
+    applyDarkMode(!isDark);
+    localStorage.setItem("darkMode", !isDark);
+  });
+
   // DOM elements
   const activitiesList = document.getElementById("activities-list");
   const messageDiv = document.getElementById("message");
@@ -14,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoryFilters = document.querySelectorAll(".category-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  const difficultyFilters = document.querySelectorAll(".difficulty-filter");
 
   // Authentication elements
   const loginButton = document.getElementById("login-button");
@@ -40,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
+  let currentDifficulty = "";
 
   // Authentication state
   let currentUser = null;
@@ -392,6 +412,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
+      // Handle difficulty filter
+      if (currentDifficulty) {
+        queryParams.push(`difficulty=${encodeURIComponent(currentDifficulty)}`);
+      }
+
       const queryString =
         queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
       const response = await fetch(`/activities${queryString}`);
@@ -646,6 +671,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Update current time filter and fetch activities
       currentTimeRange = button.dataset.time;
+      fetchActivities();
+    });
+  });
+
+  // Add event listeners for difficulty filter buttons
+  difficultyFilters.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Update active class
+      difficultyFilters.forEach((btn) => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      // Update current difficulty filter and fetch activities
+      currentDifficulty = button.dataset.difficulty;
       fetchActivities();
     });
   });
