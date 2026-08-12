@@ -43,6 +43,7 @@ def get_activities(
     
     VALID_DIFFICULTIES = {"Beginner", "Intermediate", "Advanced", "all"}
     if difficulty:
+        difficulty = difficulty.strip()
         normalized = difficulty.capitalize() if difficulty.lower() != "all" else "all"
         if normalized not in VALID_DIFFICULTIES:
             raise HTTPException(
